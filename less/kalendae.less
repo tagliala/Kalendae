@@ -1,0 +1,304 @@
+// Bootstrap variables and mixins
+@import "twitter-bootstrap/less/variables.less"; // Modify this for custom colors, font-sizes, etc
+@import "twitter-bootstrap/less/mixins.less";
+
+// Kalendae styling
+@kalendaeBackground: @tableBackground;
+@kalendaeMonthHeaderBackground: @tableBackground;
+@kalendaeDaysHeaderBackground: @tableBackgroundAccent;
+
+@kalendaeMainBorder: @tableBorder;
+@kalendaeDayBorder: @tableBorder;
+
+@kalendaeLinkColor: @linkColor;
+@kalendaeLinkColorHover: @linkColorHover;
+
+@dayBackground: @white;
+@dayBackgroundHighlight: @white;
+@dayBackgroundHover: darken(@white, 5%);
+
+@daySelectedColor: @white;
+@daySelectedBackground: @btnPrimaryBackground;
+@daySelectedBackgroundHighlight: @btnPrimaryBackgroundHighlight;
+
+@kalendaeDaySize: 14px; // Please use an even value
+@kalendaeBaseFontSize: @baseFontSize;
+
+@dayBorderRadius: 4px;
+
+/**************
+ * CONTAINERS *
+ **************/
+ 
+.kalendae, .kalendae-table {
+
+  font-family: @baseFontFamily;
+  font-size: @kalendaeBaseFontSize;
+ 
+  /** Remove extra buttons when calendar shows multiple months **/
+  .k-first-month .k-btn-next-month,
+  .k-middle-month .k-btn-next-month,
+  .k-middle-month .k-btn-previous-month,
+  .k-last-month .k-btn-previous-month,
+  .k-first-month .k-btn-next-year,
+  .k-middle-month .k-btn-next-year,
+  .k-middle-month .k-btn-previous-year,
+  .k-last-month .k-btn-previous-year {
+    visibility : hidden;
+  }
+  
+  /** Hide unusable buttons **/
+  &.k-disable-previous-year-btn .k-btn-previous-year,
+  &.k-disable-previous-month-btn .k-btn-previous-month,
+  &.k-disable-next-month-btn .k-btn-next-month,
+  &.k-disable-next-year-btn .k-btn-next-year {
+    visibility : hidden;
+  }
+  
+  .k-separator:after {
+    content : "";
+    height : (@kalendaeDaySize * 2 - 2) * 7;
+    background: darken(@white, 10%);
+    border-left: 1px solid @white;
+    width : 1px;
+    margin : 0 3px 0 2px;
+    display : inline-block;
+  }
+  
+  /** Popup Container for Kalendae.Input **/
+  &.k-floating {
+    position : absolute;
+    top : 0;
+    left : 0;
+    z-index : 100000;
+    margin : 0;
+    .box-shadow(0 3px 7px rgba(0,0,0,0.3));
+    background: darken(@white, 5%);
+    padding : 4px;
+    .k-calendar {
+      background: @white;
+    }
+  }
+  
+  .k-btn-close {
+    position:absolute;
+    top: -(@kalendaeDaySize / 2);
+    right: -(@kalendaeDaySize / 2);
+    width: @kalendaeDaySize;
+    height: @kalendaeDaySize;
+    background: @white;
+    font-size: @kalendaeDaySize + 2px;
+    font-weight : bold;
+    .border-radius(@kalendaeDaySize/2 + 4);
+    .box-shadow(0 1px 3px rgba(0,0,0,0.3));
+    border: 2px solid @kalendaeLinkColor;
+    color: @kalendaeLinkColor;
+    cursor:pointer;
+    display : table-cell;
+    vertical-align : middle;
+    text-align : center;
+    &:hover {
+      &:after {
+        color: @kalendaeLinkColorHover;
+      }
+      border-color: @kalendaeLinkColorHover;
+    }
+  }
+  .k-btn-close:after {
+    color : @kalendaeLinkColor;
+    content:"\00D7";
+    position: absolute;
+    left: 3px;
+    top: -3px;
+  }
+}
+
+.kalendae {
+  display : inline-block;
+  .k-separator {
+    display : inline-block;
+  }
+}
+
+.kalendae-table {
+  display :  table;
+  .k-separator {
+    display : table-cell;
+    vertical-align : middle;
+  }
+}
+
+/******************
+ * COMMON STYLING *
+ ******************/
+.k-calendar {
+  text-align: center;
+  line-height: @kalendaeDaySize;
+  background-color: @kalendaeBackground;
+  a[class^="k-btn-"] {
+    font-family: Arial;
+    font-size : @kalendaeDaySize + 10;
+    line-height: @kalendaeDaySize - 4;
+    width : @kalendaeDaySize;
+    text-decoration : none;
+    cursor: pointer;
+    color: @kalendaeLinkColor;
+    &:hover {
+      color: @kalendaeLinkColorHover;
+    }
+  }
+  .k-btn-previous-year:after { content:"\00AB"; }
+  .k-btn-previous-month:after { content:"\2039"; }
+  .k-btn-next-month:after { content:"\203A"; }
+  .k-btn-next-year:after { content:"\00BB"; }
+
+  .k-btn-previous-year, .k-btn-previous-month, { float: left;  }
+  .k-btn-next-month, .k-btn-next-year { float: right; }
+  .k-btn-previous-year { margin-left: @kalendaeDaySize / 2 - 2; }
+  .k-btn-previous-month { }
+  .k-btn-next-month { }
+  .k-btn-next-year { margin-right: @kalendaeDaySize / 2 - 2; }
+  border: 1px solid @kalendaeMainBorder;
+  .border-radius(4px);
+}
+
+/*****************
+ * TABLE STYLING *
+ *****************/
+.kalendae-table table.k-calendar {
+  width : (@kalendaeDaySize * 2 - 2) * 7 + 2;
+
+  border-spacing: 0;
+  
+  // Cells
+  th,
+  td {
+    padding: 8px 0px;
+    line-height: @kalendaeDaySize;
+    vertical-align: top;
+    background: @kalendaeMonthHeaderBackground;
+  }
+  th {
+    font-weight: bold;
+  }
+  
+  // Bottom align for column headings
+  thead th {
+    vertical-align: bottom;
+  }
+  
+  tbody.k-header tr td {
+    vertical-align: bottom;
+    font-weight: bold;
+    background-color: @kalendaeDaysHeaderBackground;
+    border-top: 1px solid @kalendaeMainBorder;
+    border-bottom: 1px solid @kalendaeMainBorder;
+  }
+  
+  tbody.k-days > tr > td {
+    vertical-align: middle;
+    span {
+      .border-radius(@dayBorderRadius);
+      width : @kalendaeDaySize;
+      height : @kalendaeDaySize;
+      display : inline-block;
+      padding: 3px;
+      line-height: @kalendaeDaySize;
+      /* .opacity(30); */
+      border: 1px solid lighten(@kalendaeDayBorder, 10%);
+      color: lighten(@black, 70%);
+    }
+    padding : 0;
+    width : @kalendaeDaySize * 2 - 2;
+    height : @kalendaeDaySize * 2 - 2;
+  }
+
+  border-collapse: separate; // Done so we can round those corners!
+  *border-collapse: collapsed; // IE7 can't round corners anyway
+}
+
+/***************
+ * DIV STYLING *
+ ***************/
+.kalendae .k-calendar {
+  width : (@kalendaeDaySize * 2 - 2) * 7;
+  display :  inline-block;
+  
+  .k-title, .k-header {
+    padding: 8px 0px;  
+    font-weight: bold;
+  }
+
+  .k-title span {
+    vertical-align: top;
+    background: @kalendaeMonthHeaderBackground;
+  }
+
+  .k-header {
+    vertical-align: bottom;
+    background-color: @kalendaeDaysHeaderBackground;
+    border-top: 1px solid @kalendaeMainBorder;
+    border-bottom: 1px solid @kalendaeMainBorder;
+    span {
+      width : @kalendaeDaySize * 2 - 2;
+      display : inline-block;
+    } 
+  }
+
+  .k-days {
+    span {
+      width : @kalendaeDaySize;
+      height : @kalendaeDaySize;
+      .border-radius(@dayBorderRadius);
+      border: 1px solid lighten(@kalendaeDayBorder, 10%);
+      color: lighten(@black, 70%);
+      display : inline-block;
+      padding : ceil((@kalendaeDaySize - 4) / 4);
+      margin : floor((@kalendaeDaySize - 4) / 4);
+    }
+  }
+}
+
+/***********************
+ * DAYS COMMON STYLING *
+ ***********************/
+.kalendae-table .k-calendar  tbody.k-days > tr > td > span,
+.kalendae .k-calendar .k-days span {
+  cursor: default;
+  &.k-active {
+    border: 1px solid @kalendaeDayBorder;
+    color : @black;
+    cursor: pointer;
+    .buttonBackground(@dayBackground, @dayBackgroundHighlight);
+    border-color: @kalendaeDayBorder;
+    &:hover {
+      text-decoration: none;
+      background-position: 0 -9px;
+      background-color: @dayBackgroundHover;
+
+      // transition is only when going to hover, otherwise the background
+      // behind the gradient (there for IE<=9 fallback) gets mismatched
+      .transition(background-position .1s linear);
+    }
+  }
+  &.k-out-of-month {
+    border-color: lighten(@kalendaeDayBorder, 10%);
+    color: lighten(@black, 70%);
+    /* .opacity(50) */
+    &.k-selected, &.k-range {
+      .buttonBackground(lighten(@daySelectedBackground, 20%), lighten(@daySelectedBackgroundHighlight, 20%));
+    }
+  }
+  &.k-today {
+    text-decoration:underline;
+    &:hover {
+      text-decoration : underline;
+    }
+  }
+  &.k-selected, &.k-range {
+    color: @daySelectedColor;
+    .buttonBackground(@daySelectedBackground, @daySelectedBackgroundHighlight);
+  }
+  &.k-range {
+  }
+}
