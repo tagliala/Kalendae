@@ -7,7 +7,7 @@ var Kalendae = function (targetElement, options) {
 	var self = this,
 		classes = self.classes,
 		opts = self.settings = util.merge(self.defaults, {attachTo:targetElement}, options || {}),
-		$container = self.container = util.make('div', {'class':classes.container}),
+		$container = self.container = util.make('div', {'class':(opts.mainContainer === 'table')?'kalendae-table':classes.container}),
 		calendars = self.calendars = [],
 		startDay = moment().day(opts.weekStart),
 		vsd,
@@ -51,6 +51,15 @@ var Kalendae = function (targetElement, options) {
 		vsd = moment();
 	}
 	self.viewStartDate = vsd.date(1);
+
+	//set the mainContainer
+	switch (opts.mainContainer) {
+		case 'table':
+			this.mainContainer = 'table';
+			break;
+		default:
+			this.mainContainer = 'div';
+	}
 	
 	var viewDelta = ({
 		'past'			: opts.months-1,
@@ -88,7 +97,10 @@ var Kalendae = function (targetElement, options) {
 	//for the total months setting, generate N calendar views and add them to the container
 	j = Math.max(opts.months,1);
 	while (j--) {
-		$cal = util.make('div', {'class':classes.calendar}, $container);
+		var $cal;
+		if (this.mainContainer === 'table') $cal = util.make('table', {'class':classes.calendar}, $container);
+		else $cal = util.make('div', {'class':classes.calendar}, $container);
+		
 		
 		$cal.setAttribute('data-cal-index', j);
 		if (opts.months > 1) {
@@ -98,7 +110,10 @@ var Kalendae = function (targetElement, options) {
 		}
 		
 		//title bar
-		$title = util.make('div', {'class':classes.title}, $cal);
+		var $title;
+		if (this.mainContainer === 'table') $title = util.make('th', {'colspan': 7}, util.make('tr', {}, util.make('thead', {'class':classes.title}, $cal)));
+		else $title = util.make('div', {'class':classes.title}, $cal);
+
 		util.make('a', {'class':classes.previousYear}, $title);	//previous button
 		util.make('a', {'class':classes.previousMonth}, $title);	//previous button
 		util.make('a', {'class':classes.nextYear}, $title);		//next button
@@ -106,19 +121,39 @@ var Kalendae = function (targetElement, options) {
 		$caption = util.make('span', {'class':classes.caption}, $title);	//title caption
 		
 		//column headers
-		$header = util.make('div', {'class':classes.header}, $cal);
+		var $header;
+		if (this.mainContainer === 'table') $header = util.make('tr', {}, util.make('tbody', {'class':classes.header}, $cal));
+		else $header = util.make('div', {'class':classes.header}, $cal);
+
 		i = 0;
 		do {
-			$span = util.make('span', {}, $header);
+			var $span;
+			if (this.mainContainer === 'table') $span = util.make('td', {}, $header);
+			else $span = util.make('span', {}, $header);
 			$span.innerHTML = columnHeaders[i];
 		} while (++i < 7)
 
 		//individual day cells
-		$days = util.make('div', {'class':classes.days}, $cal);
-		i = 0;
+		var $days;
+		if (this.mainContainer === 'table') $days = util.make('tbody', {'class':classes.days}, $cal);
+		else $days = util.make('div', {'class':classes.days}, $cal);
 		dayNodes = [];
-		while (i++ < 42) {
-			dayNodes.push(util.make('span', {}, $days));
+		if (this.mainContainer === 'table') {
+			var r = 0;
+			while (r++ < 6) {
+				$dayNodesRow = util.make('tr', {}, $days);
+				var c = 0;
+				while (c++ < 7) {
+					util.make('span', {}, util.make('td', {'class':classes.days}, $dayNodesRow));
+				}
+				dayNodes.push($dayNodesRow);
+			}
+		}
+		else {
+			i = 0;
+			while (i++ < 42) {
+				dayNodes.push(util.make('span', {}, $days));
+			}
 		}
 
 		//store each calendar view for easy redrawing
@@ -415,8 +450,10 @@ Kalendae.prototype = {
 			cal.caption.innerHTML = month.format(this.settings.titleFormat);
 			j = 0;
 			do {
-				$span = cal.days[j];
-
+				var $span;
+				if (this.mainContainer === 'table') $span = cal.days[Math.floor(j/7)].cells[j%7].childNodes[0];
+				else $span = cal.days[j];
+				
 				klass = [];
 
 				s = this.isSelected(day);
@@ -445,7 +482,7 @@ Kalendae.prototype = {
 			var diff = -(moment().diff(month, 'months'));		
 			if (opts.direction==='today-past' || opts.direction==='past') {
 
-				if (diff <= 0) {
+				if (diff < 0) {
 					this.disableNextMonth = false;
 					util.removeClassName(this.container, classes.disableNextMonth);
 				} else {
@@ -455,7 +492,7 @@ Kalendae.prototype = {
 
 			} else if (opts.direction==='today-future' || opts.direction==='future') {
 
-				if (diff > opts.months) {
+				if (diff >= opts.months) {
 					this.disablePreviousMonth = false;
 					util.removeClassName(this.container, classes.disablePreviousMonth);
 				} else {
@@ -467,7 +504,7 @@ Kalendae.prototype = {
 			
 				
 			if (opts.direction==='today-past' || opts.direction==='past') {
-				if (month.add({Y:1}).diff(moment(), 'years') < 0) {
+				if (month.add({y:1}).diff(moment(), 'months') <= 0) {
 					this.disableNextYear = false;
 					util.removeClassName(this.container, classes.disableNextYear);
 				} else {
@@ -476,7 +513,7 @@ Kalendae.prototype = {
 				}
 
 			} else if (opts.direction==='today-future' || opts.direction==='future') {
-				if (month.subtract({Y:1}).diff(moment(), 'years') > 0) {
+				if ((month.subtract({y:1}).diff(moment(), 'months') - (opts.months-1)) >= 0) {
 					this.disablePreviousYear = false;
 					util.removeClassName(this.container, classes.disablePreviousYear);
 				} else {
