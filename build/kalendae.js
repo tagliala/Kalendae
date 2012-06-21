@@ -2,7 +2,7 @@
  *	Kalendae, a framework agnostic javascript date picker           *
  *	Copyright(c) 2012 Jarvis Badgley (chipersoft@gmail.com)         *
  *	http://github.com/ChiperSoft/Kalendae                           *
- *	Version 0.2                                                     *
+ *	Version 0.2.6                                                   *
  ********************************************************************/
 
 (function (undefined) {
@@ -10,8 +10,17 @@
 var today;
 
 var Kalendae = function (targetElement, options) {
+	if (typeof document.addEventListener !== 'function') return;
+	
 	//if the first argument isn't an element and isn't a string, assume that it is the options object
-	if (!(targetElement instanceof Element || typeof targetElement === 'string')) options = targetElement;
+	var is_element = false;
+	try { 
+		is_element = targetElement instanceof Element;
+	}
+	catch (err) {
+		is_element = !!targetElement && is_element.nodeType === 1;
+	}
+	if (!(is_element || typeof(targetElement) === 'string')) options = targetElement;
 	
 	var self = this,
 		classes = self.classes,
@@ -454,7 +463,7 @@ Kalendae.prototype = {
 			var diff = -(moment().diff(month, 'months'));		
 			if (opts.direction==='today-past' || opts.direction==='past') {
 
-				if (diff <= 0) {
+				if (diff < 0) {
 					this.disableNextMonth = false;
 					util.removeClassName(this.container, classes.disableNextMonth);
 				} else {
@@ -464,7 +473,7 @@ Kalendae.prototype = {
 
 			} else if (opts.direction==='today-future' || opts.direction==='future') {
 
-				if (diff > opts.months) {
+				if (diff >= opts.months) {
 					this.disablePreviousMonth = false;
 					util.removeClassName(this.container, classes.disablePreviousMonth);
 				} else {
@@ -476,7 +485,7 @@ Kalendae.prototype = {
 			
 				
 			if (opts.direction==='today-past' || opts.direction==='past') {
-				if (month.add({Y:1}).diff(moment(), 'years') < 0) {
+				if (month.add({y:1}).diff(moment(), 'months') <= 0) {
 					this.disableNextYear = false;
 					util.removeClassName(this.container, classes.disableNextYear);
 				} else {
@@ -485,7 +494,7 @@ Kalendae.prototype = {
 				}
 
 			} else if (opts.direction==='today-future' || opts.direction==='future') {
-				if (month.subtract({Y:1}).diff(moment(), 'years') > 0) {
+				if ((month.subtract({y:1}).diff(moment(), 'months') - (opts.months-1)) >= 0) {
 					this.disablePreviousYear = false;
 					util.removeClassName(this.container, classes.disablePreviousYear);
 				} else {
@@ -695,25 +704,32 @@ var util = Kalendae.util = {
 
 
 //auto-initializaiton code
-Kalendae.util.domReady(function () {
+if (typeof document.addEventListener === 'function') Kalendae.util.domReady(function () {
 	var els = util.$$('.auto-kal'),
 		i = els.length,
-		e;
+		e,
+		options,
+		optionsRaw;
 
 	while (i--) {
 		e = els[i];
+		optionsRaw = e.getAttribute('data-kal');
+		options = (optionsRaw == null || optionsRaw == "") ? {} : (new Function('return {' + optionsRaw + '};'))();
+
 		if (e.tagName === 'INPUT') {
 			//if element is an input, bind a popup calendar to the input.
-			new Kalendae.Input(e);
+			new Kalendae.Input(e, options);
 		} else {
 			//otherwise, insert a flat calendar into the element.
-			new Kalendae({attachTo:e});
+			new Kalendae(util.merge(options, {attachTo:e}));
 		}
 		
 	}
 });
 
 Kalendae.Input = function (targetElement, options) {
+	if (typeof document.addEventListener !== 'function') return;
+
 	var $input = this.input = util.$(targetElement),
 		overwriteInput;
 
@@ -1657,7 +1673,7 @@ moment.fn.yearDay = function (input) {
 
 today = moment().stripTime();
 
-if (typeof jQuery !== 'undefined') {
+if (typeof jQuery !== 'undefined' && typeof document.addEventListener === 'function') {
 	jQuery.fn.kalendae = function (options) {
 		this.each(function (i, e) {
 			if (e.tagName === 'INPUT') {
