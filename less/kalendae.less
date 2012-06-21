@@ -1,8 +1,10 @@
-// Bootstrap variables and mixins
-@import "twitter-bootstrap/less/variables.less"; // Modify this for custom colors, font-sizes, etc
-@import "twitter-bootstrap/less/mixins.less";
+/* Bootstrap variables and mixins */
+@import "twitter-bootstrap/variables.less"; /* Edit this for custom colors, font-sizes, etc */
+@import "twitter-bootstrap/mixins.less";
 
-// Kalendae styling
+/* ==========================================================================
+   Kalendae styling
+   ========================================================================== */
 @kalendaeBackground: @tableBackground;
 @kalendaeMonthHeaderBackground: @tableBackground;
 @kalendaeDaysHeaderBackground: @tableBackgroundAccent;
@@ -21,21 +23,18 @@
 @daySelectedBackground: @btnPrimaryBackground;
 @daySelectedBackgroundHighlight: @btnPrimaryBackgroundHighlight;
 
-@kalendaeDaySize: 14px; // Please use an even value
+@kalendaeDaySize: 14px; /* Use an even value */
 @kalendaeBaseFontSize: @baseFontSize;
 
 @dayBorderRadius: 4px;
 
-/**************
- * CONTAINERS *
- **************/
- 
+/* Containers
+   ========================================================================== */
 .kalendae, .kalendae-table {
-
   font-family: @baseFontFamily;
   font-size: @kalendaeBaseFontSize;
- 
-  /** Remove extra buttons when calendar shows multiple months **/
+
+  /* Remove extra buttons when calendar shows multiple months */
   .k-first-month .k-btn-next-month,
   .k-middle-month .k-btn-next-month,
   .k-middle-month .k-btn-previous-month,
@@ -46,75 +45,80 @@
   .k-last-month .k-btn-previous-year {
     visibility : hidden;
   }
-  
-  /** Hide unusable buttons **/
+
+  /* Hide unusable buttons */
   &.k-disable-previous-year-btn .k-btn-previous-year,
   &.k-disable-previous-month-btn .k-btn-previous-month,
   &.k-disable-next-month-btn .k-btn-next-month,
   &.k-disable-next-year-btn .k-btn-next-year {
     visibility : hidden;
   }
-  
+
   .k-separator:after {
-    content : "";
-    height : (@kalendaeDaySize * 2 - 2) * 7;
-    background: darken(@white, 10%);
-    border-left: 1px solid @white;
-    width : 1px;
-    margin : 0 3px 0 2px;
     display : inline-block;
+    height : (@kalendaeDaySize * 2 - 2) * 7;
+    width : 1px;
+    border-left: 1px solid @white;
+    margin : 0 3px 0 2px;
+    background: darken(@white, 10%);
+    content : "";
   }
-  
+
   /** Popup Container for Kalendae.Input **/
   &.k-floating {
+    z-index : 100000;
     position : absolute;
     top : 0;
     left : 0;
-    z-index : 100000;
     margin : 0;
+    padding : 4px;
     .box-shadow(0 3px 7px rgba(0,0,0,0.3));
     background: darken(@white, 5%);
-    padding : 4px;
+
     .k-calendar {
       background: @white;
     }
   }
-  
+
   .k-btn-close {
     position:absolute;
+    display : table-cell;
     top: -(@kalendaeDaySize / 2);
     right: -(@kalendaeDaySize / 2);
-    width: @kalendaeDaySize;
-    height: @kalendaeDaySize;
-    background: @white;
-    font-size: @kalendaeDaySize + 2px;
-    font-weight : bold;
-    .border-radius(@kalendaeDaySize/2 + 4);
-    .box-shadow(0 1px 3px rgba(0,0,0,0.3));
+    .square(@kalendaeDaySize);
     border: 2px solid @kalendaeLinkColor;
-    color: @kalendaeLinkColor;
-    cursor:pointer;
-    display : table-cell;
+    .border-radius(@kalendaeDaySize/2 + 4);
     vertical-align : middle;
     text-align : center;
+    line-height: @kalendaeDaySize + 2px;
+    font-size: @kalendaeDaySize + 2px;
+    font-weight : bold;
+    color: @kalendaeLinkColor;
+    background: @white;
+    .box-shadow(0 1px 3px rgba(0,0,0,0.3));
+    cursor:pointer;
+
+    &:after {
+      position: absolute;
+      top: -1px;
+      left: 3px;
+      color : @kalendaeLinkColor;
+      content:"\00D7";
+    }
+
     &:hover {
+      border-color: @kalendaeLinkColorHover;
+
       &:after {
         color: @kalendaeLinkColorHover;
       }
-      border-color: @kalendaeLinkColorHover;
     }
-  }
-  .k-btn-close:after {
-    color : @kalendaeLinkColor;
-    content:"\00D7";
-    position: absolute;
-    left: 3px;
-    top: -3px;
   }
 }
 
 .kalendae {
   display : inline-block;
+
   .k-separator {
     display : inline-block;
   }
@@ -122,109 +126,134 @@
 
 .kalendae-table {
   display :  table;
+
   .k-separator {
     display : table-cell;
     vertical-align : middle;
   }
 }
 
-/******************
- * COMMON STYLING *
- ******************/
+/* Common styling
+   ========================================================================== */
 .k-calendar {
+  border: 1px solid @kalendaeMainBorder;
+  .border-radius(4px);
   text-align: center;
   line-height: @kalendaeDaySize;
   background-color: @kalendaeBackground;
+
   a[class^="k-btn-"] {
+    width : @kalendaeDaySize;
+    line-height: @kalendaeDaySize - 4;
     font-family: Arial;
     font-size : @kalendaeDaySize + 10;
-    line-height: @kalendaeDaySize - 4;
-    width : @kalendaeDaySize;
+    color: @kalendaeLinkColor;
     text-decoration : none;
     cursor: pointer;
-    color: @kalendaeLinkColor;
+
     &:hover {
       color: @kalendaeLinkColorHover;
     }
   }
-  .k-btn-previous-year:after { content:"\00AB"; }
-  .k-btn-previous-month:after { content:"\2039"; }
-  .k-btn-next-month:after { content:"\203A"; }
-  .k-btn-next-year:after { content:"\00BB"; }
 
-  .k-btn-previous-year, .k-btn-previous-month, { float: left;  }
-  .k-btn-next-month, .k-btn-next-year { float: right; }
-  .k-btn-previous-year { margin-left: @kalendaeDaySize / 2 - 2; }
-  .k-btn-previous-month { }
-  .k-btn-next-month { }
-  .k-btn-next-year { margin-right: @kalendaeDaySize / 2 - 2; }
-  border: 1px solid @kalendaeMainBorder;
-  .border-radius(4px);
+  .k-btn-previous-year:after {
+    content:"\00AB";
+  }
+
+  .k-btn-previous-month:after {
+    content:"\2039";
+  }
+  
+  .k-btn-next-month:after {
+    content:"\203A";
+  }
+
+  .k-btn-next-year:after {
+    content:"\00BB";
+  }
+
+  .k-btn-previous-year,
+  .k-btn-previous-month {
+    float: left;
+  }
+
+  .k-btn-next-month,
+  .k-btn-next-year {
+    float: right;
+  }
+
+  .k-btn-previous-year,
+  .k-btn-previous-month
+   {
+    margin-left: @kalendaeDaySize / 2 - 2;
+  }
+
+  .k-btn-next-year,
+  .k-btn-next-month {
+    margin-right: @kalendaeDaySize / 2 - 2;
+  }
 }
 
-/*****************
- * TABLE STYLING *
- *****************/
+/* Table styling
+   ========================================================================== */
 .kalendae-table table.k-calendar {
   width : (@kalendaeDaySize * 2 - 2) * 7 + 2;
-
   border-spacing: 0;
-  
-  // Cells
+
+  /* Cells */
   th,
   td {
     padding: 8px 0px;
-    line-height: @kalendaeDaySize;
     vertical-align: top;
+    line-height: @kalendaeDaySize;
     background: @kalendaeMonthHeaderBackground;
   }
+
   th {
     font-weight: bold;
   }
-  
-  // Bottom align for column headings
+
+  /* Bottom align for column headings */
   thead th {
     vertical-align: bottom;
   }
-  
+
   tbody.k-header tr td {
+    border-top: 1px solid @kalendaeMainBorder;
+    border-bottom: 1px solid @kalendaeMainBorder;
     vertical-align: bottom;
     font-weight: bold;
     background-color: @kalendaeDaysHeaderBackground;
-    border-top: 1px solid @kalendaeMainBorder;
-    border-bottom: 1px solid @kalendaeMainBorder;
   }
-  
+
   tbody.k-days > tr > td {
+    .square(@kalendaeDaySize * 2 - 2);
+    border-collapse: separate; /* Done so we can round those corners! */
+    *border-collapse: collapsed; /* IE7 can't round corners anyway */
+    padding : 0;
     vertical-align: middle;
+
     span {
-      .border-radius(@dayBorderRadius);
-      width : @kalendaeDaySize;
-      height : @kalendaeDaySize;
       display : inline-block;
+      .square(@kalendaeDaySize);
+      border: 1px solid lighten(@kalendaeDayBorder, 10%);
+      .border-radius(@dayBorderRadius);
       padding: 3px;
       line-height: @kalendaeDaySize;
       /* .opacity(30); */
-      border: 1px solid lighten(@kalendaeDayBorder, 10%);
       color: lighten(@black, 70%);
     }
-    padding : 0;
-    width : @kalendaeDaySize * 2 - 2;
-    height : @kalendaeDaySize * 2 - 2;
   }
-
-  border-collapse: separate; // Done so we can round those corners!
-  *border-collapse: collapsed; // IE7 can't round corners anyway
 }
 
-/***************
- * DIV STYLING *
- ***************/
+/* DIV styling
+   ========================================================================== */
 .kalendae .k-calendar {
-  width : (@kalendaeDaySize * 2 - 2) * 7;
   display :  inline-block;
-  
-  .k-title, .k-header {
+  width : (@kalendaeDaySize * 2 - 2) * 7;
+
+  .k-title,
+  .k-header {
     padding: 8px 0px;  
     font-weight: bold;
   }
@@ -235,70 +264,76 @@
   }
 
   .k-header {
-    vertical-align: bottom;
-    background-color: @kalendaeDaysHeaderBackground;
     border-top: 1px solid @kalendaeMainBorder;
     border-bottom: 1px solid @kalendaeMainBorder;
+    vertical-align: bottom;
+    background-color: @kalendaeDaysHeaderBackground;
+
     span {
-      width : @kalendaeDaySize * 2 - 2;
       display : inline-block;
+      width : @kalendaeDaySize * 2 - 2;
     } 
   }
 
   .k-days {
     span {
-      width : @kalendaeDaySize;
-      height : @kalendaeDaySize;
-      .border-radius(@dayBorderRadius);
-      border: 1px solid lighten(@kalendaeDayBorder, 10%);
-      color: lighten(@black, 70%);
       display : inline-block;
-      padding : ceil((@kalendaeDaySize - 4) / 4);
+      .square(@kalendaeDaySize);
       margin : floor((@kalendaeDaySize - 4) / 4);
+      border: 1px solid lighten(@kalendaeDayBorder, 10%);
+      padding : ceil((@kalendaeDaySize - 4) / 4);
+      .border-radius(@dayBorderRadius);
+      color: lighten(@black, 70%);
     }
   }
 }
 
-/***********************
- * DAYS COMMON STYLING *
- ***********************/
-.kalendae-table .k-calendar  tbody.k-days > tr > td > span,
+/* Days common styling
+   ========================================================================== */
+.kalendae-table .k-calendar tbody.k-days > tr > td > span,
 .kalendae .k-calendar .k-days span {
   cursor: default;
   &.k-active {
     border: 1px solid @kalendaeDayBorder;
     color : @black;
-    cursor: pointer;
     .buttonBackground(@dayBackground, @dayBackgroundHighlight);
-    border-color: @kalendaeDayBorder;
+    cursor: pointer;
+
     &:hover {
       text-decoration: none;
       background-position: 0 -9px;
       background-color: @dayBackgroundHover;
 
-      // transition is only when going to hover, otherwise the background
-      // behind the gradient (there for IE<=9 fallback) gets mismatched
+      /* transition is only when going to hover, otherwise the background
+       * behind the gradient (there for IE<=9 fallback) gets mismatched
+       */
       .transition(background-position .1s linear);
     }
   }
+
   &.k-out-of-month {
     border-color: lighten(@kalendaeDayBorder, 10%);
     color: lighten(@black, 70%);
     /* .opacity(50) */
+
     &.k-selected, &.k-range {
       .buttonBackground(lighten(@daySelectedBackground, 20%), lighten(@daySelectedBackgroundHighlight, 20%));
     }
   }
+
   &.k-today {
     text-decoration:underline;
     &:hover {
       text-decoration : underline;
     }
   }
-  &.k-selected, &.k-range {
+
+  &.k-selected,
+  &.k-range {
     color: @daySelectedColor;
     .buttonBackground(@daySelectedBackground, @daySelectedBackgroundHighlight);
   }
+  
   &.k-range {
   }
 }
